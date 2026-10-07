@@ -6,7 +6,7 @@ def scale_to_canvas(points: list, canvas_size: int = 100, padding: int = 5) -> l
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
 
-    min_x, max_x = min(xs), max(ys)
+    min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
 
     width = max_x - min_x
@@ -47,8 +47,10 @@ def classify_triangle(side_a_str: str, side_b_str: str, side_c_str:str) -> tuple
         logging.warning((f"Неуспешный запрос. Параметры: a={a}, b={b}, c={c}. Стороны должны быть > 0."))
         return "не треугольник", ERR_COORDS
 
-    if a + b <= c or  a + c <= b or b + c <= a:
-        logging.warning((f"Неуспешный запрос. Параметры: a={a}, b={b}, c={c}. Нарушено неравенство треугольника."))
+    epsilon = 1e-9
+    if (a + b <= c + epsilon) or (a + c <= b + epsilon) or (b + c <= a + epsilon):
+        logging.warning(
+            f"Неуспешный запрос. Параметры: a={a}, b={b}, c={c}. Ошибка: нарушено неравенство треугольника.")
         return "не треугольник", ERR_COORDS
 
     if math.isclose(a, b, rel_tol=1e-9) or math.isclose(b, c, rel_tol=1e-9):
@@ -58,4 +60,13 @@ def classify_triangle(side_a_str: str, side_b_str: str, side_c_str:str) -> tuple
     else:
         tri_type = "разносторонний"
 
-    x3 = (b ** 2 +)
+    x3 = (b ** 2 + c ** 2 - a ** 2) / (2 * c)
+    y3_sq = b ** 2 - x3 ** 2
+    y3 = math.sqrt(max(0.0, y3_sq))
+
+    raw_points = [(0.0, 0.0), (c, 0.0), (x3, y3)]
+    coords = scale_to_canvas(raw_points)
+
+    logging.debug(f"{raw_points}, {coords}")
+
+    return tri_type, coords
