@@ -23,7 +23,7 @@ class TestControllerIntegration(unittest.TestCase):
     def tearDown(self):
         self.db.close()
 
-    # Проверка на сквозной сценарий: новый треугольник -> вычисление -> сохранение в БД -> отправка
+    # новый треугольник -> вычисление -> сохранение в БД -> отправка
     @patch.object(EmailService, 'send_result', return_value=True)
     @patch.object(ConsoleUserInteraction, 'get_triangle_sides', return_value=("3", "4", "5"))
     def test_new_triangle_computed_saved_and_sent(self, mock_ui, mock_ext):
@@ -37,7 +37,7 @@ class TestControllerIntegration(unittest.TestCase):
 
         mock_ext.assert_called_once()
 
-    # Проверка, что при повторном запросе результат берётся из БД, а не вычисляется заново
+    # результат берётся из БД, а не вычисляется заново
     @patch.object(EmailService, 'send_result', return_value=True)
     @patch.object(ConsoleUserInteraction, 'get_triangle_sides', return_value=("5", "5", "5"))
     def test_existing_triangle_taken_from_db(self, mock_ui, mock_ext):
@@ -49,7 +49,7 @@ class TestControllerIntegration(unittest.TestCase):
 
         mock_ext.assert_called_once()
 
-    # Проверка на обработку нечисловых данных: БД не задействуется, но внешний сервис вызывается
+    # БД не задействуется, но внешний сервис вызывается
     @patch.object(EmailService, 'send_result', return_value=True)
     @patch.object(ConsoleUserInteraction, 'get_triangle_sides', return_value=("abc", "4", "5"))
     def test_non_numeric_data_bypasses_db(self, mock_ui, mock_ext):
